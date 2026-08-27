@@ -1,1 +1,498 @@
+Wildguard ai · HTML
 
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>WildGuard AI — Wildlife Rescue Assistant</title>
+
+<style>
+
+ :root{
+
+ --forest:#2f5d3a; --forest-dk:#1f4028; --forest-lt:#e5eee2;
+
+ --paper:#f6f4ec; --panel:#ffffff; --line:#dfe3d8;
+
+ --ink:#1c2b22; --ink-soft:#5b6a5f; --amber:#e08a1e;
+
+ --red:#c94a3c; --user-bubble:#2f5d3a; --bot-bubble:#eef1ea;
+
+ }
+
+ *{box-sizing:border-box; margin:0; padding:0;}
+
+ html,body{height:100%;}
+
+ body{
+
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+
+ background:var(--paper); color:var(--ink); display:flex; flex-direction:column; height:100vh;
+
+ }
+
+ 
+
+ header{
+
+ background:var(--forest-dk); color:#fff; padding:14px 24px;
+
+ display:flex; align-items:center; gap:12px; flex-shrink:0;
+
+ box-shadow:0 1px 4px rgba(0,0,0,.15);
+
+ }
+
+ .logo{
+
+ width:36px; height:36px; border-radius:10px; background:var(--amber);
+
+ display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;
+
+ }
+
+ header h1{ font-size:16px; font-weight:700; }
+
+ header p{ font-size:11.5px; color:#c9d9c9; margin-top:1px; }
+
+ .status{
+
+ margin-left:auto; display:flex; align-items:center; gap:6px; font-size:11.5px; color:#c9d9c9;
+
+ }
+
+ .dot{ width:8px; height:8px; border-radius:50%; background:#5fd97e; flex-shrink:0; }
+
+ 
+
+ main{
+
+ flex:1; overflow-y:auto; display:flex; justify-content:center;
+
+ padding:24px 16px 12px;
+
+ }
+
+ .chat-wrap{ width:100%; max-width:760px; display:flex; flex-direction:column; gap:16px; }
+
+ 
+
+ .msg{ display:flex; gap:10px; max-width:100%; animation:fadeIn .25s ease; }
+
+ @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+ .msg.user{ flex-direction:row-reverse; }
+
+ .avatar{
+
+ width:30px; height:30px; border-radius:8px; flex-shrink:0;
+
+ display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff;
+
+ }
+
+ .avatar.bot{ background:var(--forest); }
+
+ .avatar.user{ background:var(--amber); }
+
+ .bubble{
+
+ padding:11px 15px; border-radius:14px; font-size:14.5px; line-height:1.55;
+
+ max-width:78%; white-space:pre-wrap;
+
+ }
+
+ .msg.bot .bubble{ background:var(--bot-bubble); color:var(--ink); border-bottom-left-radius:4px; }
+
+ .msg.user .bubble{ background:var(--user-bubble); color:#fff; border-bottom-right-radius:4px; }
+
+ 
+
+ .suggestions{
+
+ display:flex; flex-wrap:wrap; gap:8px; padding:4px 0 8px;
+
+ }
+
+ .chip{
+
+ background:var(--panel); border:1px solid var(--line); color:var(--forest-dk);
+
+ font-size:12.5px; padding:8px 13px; border-radius:20px; cursor:pointer;
+
+ transition:background .15s, border-color .15s;
+
+ }
+
+ .chip:hover{ background:var(--forest-lt); border-color:var(--forest); }
+
+ 
+
+ .typing{ display:flex; gap:4px; padding:6px 0; }
+
+ .typing span{
+
+ width:6px; height:6px; border-radius:50%; background:#9aa89c;
+
+ animation:bounce 1.2s infinite ease-in-out;
+
+ }
+
+ .typing span:nth-child(2){ animation-delay:.15s; }
+
+ .typing span:nth-child(3){ animation-delay:.3s; }
+
+ @keyframes bounce{ 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-5px);} }
+
+ 
+
+ footer{
+
+ flex-shrink:0; padding:14px 16px 20px; display:flex; justify-content:center;
+
+ background:linear-gradient(to top, var(--paper) 70%, transparent);
+
+ }
+
+ .input-bar{
+
+ width:100%; max-width:760px; display:flex; gap:10px; align-items:flex-end;
+
+ background:var(--panel); border:1px solid var(--line); border-radius:16px;
+
+ padding:8px 8px 8px 16px; box-shadow:0 1px 6px rgba(0,0,0,.06);
+
+ }
+
+ #userInput{
+
+ flex:1; border:none; outline:none; resize:none; font-size:14.5px;
+
+ font-family:inherit; line-height:1.5; max-height:120px; padding:8px 0; background:transparent; color:var(--ink);
+
+ }
+
+ #sendBtn{
+
+ background:var(--forest); color:#fff; border:none; width:38px; height:38px;
+
+ border-radius:11px; cursor:pointer; flex-shrink:0; font-size:16px;
+
+ display:flex; align-items:center; justify-content:center; transition:background .15s;
+
+ }
+
+ #sendBtn:hover{ background:var(--forest-dk); }
+
+ #sendBtn:disabled{ background:#b7bfb4; cursor:not-allowed; }
+
+ .disclaimer{ text-align:center; font-size:10.5px; color:var(--ink-soft); margin-top:8px; }
+
+ 
+
+ main::-webkit-scrollbar{ width:8px; }
+
+ main::-webkit-scrollbar-thumb{ background:#c9d0c3; border-radius:4px; }
+
+</style>
+
+</head>
+
+<body>
+
+ 
+
+<header>
+
+ <div class="logo">🐾</div>
+
+ <div>
+
+ <h1>WildGuard AI</h1>
+
+ <p>Assistant for the Wildlife Injury Detection &amp; Rescue Alert System</p>
+
+ </div>
+
+ <div class="status"><span class="dot"></span>Online</div>
+
+</header>
+
+ 
+
+<main id="chatMain">
+
+ <div class="chat-wrap" id="chatWrap">
+
+ <div class="msg bot">
+
+ <div class="avatar bot">AI</div>
+
+ <div class="bubble">Hi, I'm WildGuard AI — the assistant for your AI-based wildlife injury detection and rescue system. Ask me about how the device works, its hardware, the detection pipeline, deployment tips, or anything else about the project.</div>
+
+ </div>
+
+ <div class="suggestions" id="suggestions">
+
+ <div class="chip">How does the injury detection AI work?</div>
+
+ <div class="chip">What hardware powers this device?</div>
+
+ <div class="chip">How does GPS + LoRa alerting work?</div>
+
+ <div class="chip">How long does the battery last on solar?</div>
+
+ </div>
+
+ </div>
+
+</main>
+
+ 
+
+<footer>
+
+ <div style="width:100%; max-width:760px;">
+
+ <div class="input-bar">
+
+ <textarea id="userInput" rows="1" placeholder="Ask WildGuard AI about the rescue system..."></textarea>
+
+ <button id="sendBtn">➤</button>
+
+ </div>
+
+ <p class="disclaimer">WildGuard AI can make mistakes. Verify critical rescue and hardware details independently.</p>
+
+ </div>
+
+</footer>
+
+ 
+
+<script>
+
+const chatWrap = document.getElementById('chatWrap');
+
+const chatMain = document.getElementById('chatMain');
+
+const userInput = document.getElementById('userInput');
+
+const sendBtn = document.getElementById('sendBtn');
+
+const suggestionsEl = document.getElementById('suggestions');
+
+ 
+
+const SYSTEM_PROMPT = `You are WildGuard AI, a helpful assistant embedded in a website for an "AI-Based Wildlife Injury Detection and Smart Rescue Alert System" student engineering project. The system: a solar-powered, tree-mounted, waterproof enclosure with a Raspberry Pi Camera Module 3 and 850nm IR LEDs for day/night monitoring, a Raspberry Pi Zero 2 W running a computer vision model to identify species and detect injuries (bleeding, wounds, limping, broken limbs, abnormal posture, entanglement), an ESP32-S3 microcontroller, a u-blox NEO-6M GPS module, an SX1278 LoRa module, a BME280 environmental sensor, an MPU6050 motion sensor, a 5000mAh Li-ion battery, and a solar charge controller. On high-confidence injury detection it captures photos, tags GPS/timestamp/temperature/humidity, and sends alerts via LoRa or 4G/Wi-Fi to a cloud server and mobile app used by forest officers, vets, and rescue teams. Answer questions about this project's design, hardware, AI pipeline, deployment, and conservation use clearly and helpfully. Keep answers concise and well-formatted. You can also help with general questions if asked, but you have special expertise in this project.`;
+
+ 
+
+let history = [];
+
+ 
+
+function addMessage(role, text){
+
+ const msg = document.createElement('div');
+
+ msg.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+
+ const avatar = document.createElement('div');
+
+ avatar.className = 'avatar ' + (role === 'user' ? 'user' : 'bot');
+
+ avatar.textContent = role === 'user' ? 'You' : 'AI';
+
+ const bubble = document.createElement('div');
+
+ bubble.className = 'bubble';
+
+ bubble.textContent = text;
+
+ msg.appendChild(avatar);
+
+ msg.appendChild(bubble);
+
+ chatWrap.appendChild(msg);
+
+ chatMain.scrollTop = chatMain.scrollHeight;
+
+ return bubble;
+
+}
+
+ 
+
+function addTyping(){
+
+ const msg = document.createElement('div');
+
+ msg.className = 'msg bot';
+
+ msg.id = 'typingMsg';
+
+ const avatar = document.createElement('div');
+
+ avatar.className = 'avatar bot';
+
+ avatar.textContent = 'AI';
+
+ const bubble = document.createElement('div');
+
+ bubble.className = 'bubble';
+
+ bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+
+ msg.appendChild(avatar);
+
+ msg.appendChild(bubble);
+
+ chatWrap.appendChild(msg);
+
+ chatMain.scrollTop = chatMain.scrollHeight;
+
+}
+
+ 
+
+function removeTyping(){
+
+ const el = document.getElementById('typingMsg');
+
+ if (el) el.remove();
+
+}
+
+ 
+
+async function sendMessage(text){
+
+ if (!text.trim()) return;
+
+ if (suggestionsEl) { suggestionsEl.remove(); }
+
+ 
+
+ addMessage('user', text);
+
+ history.push({ role: 'user', content: text });
+
+ userInput.value = '';
+
+ userInput.style.height = 'auto';
+
+ sendBtn.disabled = true;
+
+ addTyping();
+
+ 
+
+ try {
+
+ const response = await fetch("https://api.anthropic.com/v1/messages", {
+
+ method: "POST",
+
+ headers: { "Content-Type": "application/json" },
+
+ body: JSON.stringify({
+
+ model: "claude-sonnet-4-6",
+
+ max_tokens: 1000,
+
+ system: SYSTEM_PROMPT,
+
+ messages: history
+
+ })
+
+ });
+
+ const data = await response.json();
+
+ removeTyping();
+
+ 
+
+ let replyText = "Sorry, I couldn't generate a response just now.";
+
+ if (data && data.content) {
+
+ replyText = data.content.map(b => b.type === 'text' ? b.text : '').join('\n').trim() || replyText;
+
+ }
+
+ addMessage('bot', replyText);
+
+ history.push({ role: 'assistant', content: replyText });
+
+ } catch (err) {
+
+ removeTyping();
+
+ addMessage('bot', 'Something went wrong reaching the assistant. Please try again.');
+
+ console.error(err);
+
+ } finally {
+
+ sendBtn.disabled = false;
+
+ }
+
+}
+
+ 
+
+sendBtn.addEventListener('click', () => sendMessage(userInput.value));
+
+userInput.addEventListener('keydown', (e) => {
+
+ if (e.key === 'Enter' && !e.shiftKey) {
+
+ e.preventDefault();
+
+ sendMessage(userInput.value);
+
+ }
+
+});
+
+userInput.addEventListener('input', () => {
+
+ userInput.style.height = 'auto';
+
+ userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+
+});
+
+ 
+
+document.querySelectorAll('.chip').forEach(chip => {
+
+ chip.addEventListener('click', () => sendMessage(chip.textContent));
+
+});
+
+</script>
+
+ 
+
+</body>
+
+</html>
+
+ 
+
+From <https://claude.ai/new> 
